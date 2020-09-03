@@ -1,0 +1,60 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: springboot
+
+  datasource:
+    dynamic:
+      primary: queryDS
+      datasource:
+        queryDS:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://localhost:3306/springboot?characterEncoding=utf8&useSSL=false&serverTimezone=UTC
+          username: ${MYSQL_USER_NAME}
+          password: ${MYSQL_USER_PWD}
+          type: com.zaxxer.hikari.HikariDataSource
+          hikari:
+            min-idle: 5
+            max-pool-size: 10
+            idle-timeout: 30000
+            pool-name: QueryPool
+            max-lifetime: 1800000
+            connection-timeout: 30000
+        crdDS:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://localhost:3306/springboot?characterEncoding=utf8&useSSL=false&serverTimezone=UTC
+          username: ${MYSQL_USER_NAME2}
+          password: ${MYSQL_USER_PWD2}
+          type: com.zaxxer.hikari.HikariDataSource
+          hikari:
+            min-idle: 10
+            max-pool-size: 20
+            idle-timeout: 30000
+            pool-name: crdPool
+            max-lifetime: 1800000
+            connection-timeout: 30000
+
+  #  jackson:
+  #    property-naming-strategy: SNAKE_CASE
+
+  jpa:
+    show-sql: true
+
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+    publisher-confirm-type: CORRELATED
+    ## 消费端配置
+    concurrency: 1
+    max-concurrency: 1
+    acknowledge-mode: MANUAL
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
