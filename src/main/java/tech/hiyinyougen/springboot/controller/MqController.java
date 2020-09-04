@@ -20,6 +20,13 @@ public class MqController {
     @Autowired
     private SendMqUtils sendMqUtils;
 
+    /**
+     * @description 发送消息
+     * @return tech.hiyinyougen.springboot.model.ResultModel
+     * @throws
+     * @author yinyg
+     * @date 2020/9/4
+     */
     @GetMapping("/publishMqTest")
     public ResultModel publishMqTest() {
         UserModel userModel = UserModel.builder().username("yinyg").age(18).build();
@@ -27,6 +34,13 @@ public class MqController {
         return ResultModel.builder().success(Boolean.TRUE).build();
     }
 
+    /**
+     * @description 发送消息，事务
+     * @return tech.hiyinyougen.springboot.model.ResultModel
+     * @throws
+     * @author yinyg
+     * @date 2020/9/4
+     */
     @GetMapping("/publishMqTestWithTransaction")
     public ResultModel publishMqTestWithTransaction() {
         UserModel userModel = UserModel.builder().username("yinyg").age(18).build();
@@ -34,6 +48,13 @@ public class MqController {
         return ResultModel.builder().success(Boolean.TRUE).build();
     }
 
+    /**
+     * @description 发送消息，确认机制
+     * @return tech.hiyinyougen.springboot.model.ResultModel
+     * @throws
+     * @author yinyg
+     * @date 2020/9/4
+     */
     @GetMapping("/publishMqTestWithConfirm")
     public ResultModel publishMqTestWithConfirm() {
         UserModel userModel = UserModel.builder().username("yinyg").age(18).build();
@@ -41,6 +62,13 @@ public class MqController {
         return ResultModel.builder().success(Boolean.TRUE).build();
     }
 
+    /**
+     * @description 发送消息，异步确认
+     * @return tech.hiyinyougen.springboot.model.ResultModel
+     * @throws
+     * @author yinyg
+     * @date 2020/9/4
+     */
     @GetMapping("/publishMqTestWithAsyncConfirm")
     public ResultModel publishMqTestWithAsyncConfirm() {
         UserModel userModel = UserModel.builder().username("yinyg").age(18).build();
@@ -48,6 +76,13 @@ public class MqController {
         return ResultModel.builder().success(Boolean.TRUE).build();
     }
 
+    /**
+     * @description 发送消息，持久化
+     * @return tech.hiyinyougen.springboot.model.ResultModel
+     * @throws
+     * @author yinyg
+     * @date 2020/9/4
+     */
     @GetMapping("/publishMqTestWithPersistent")
     public ResultModel publishMqTestWithPersistent() {
         UserModel userModel = UserModel.builder().username("yinyg").age(18).build();
@@ -56,7 +91,7 @@ public class MqController {
     }
 
     /**
-     * @description 延时队列实现一
+     * @description 延时队列实现一，死信队列
      * @return tech.hiyinyougen.springboot.model.ResultModel
      * @throws
      * @author yinyg
@@ -72,7 +107,7 @@ public class MqController {
     }
 
     /**
-     * @description 延时队列实现一
+     * @description 延时队列实现二，rabbitmq插件
      * @return tech.hiyinyougen.springboot.model.ResultModel
      * @throws
      * @author yinyg

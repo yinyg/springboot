@@ -55,6 +55,15 @@ public class SendMqUtils {
         }
     }
 
+    /**
+     * @description 发送消息，事务
+     * @param exchange
+     * @param queueName
+     * @param message
+     * @throws
+     * @author yinyg
+     * @date 2020/9/4
+     */
     public void publishWithTransaction(String exchange, String queueName, Object message) {
         Connection connection = null;
         Channel channel = null;
@@ -90,6 +99,15 @@ public class SendMqUtils {
         }
     }
 
+    /**
+     * @description 发送消息，确认机制
+     * @param exchange
+     * @param queueName
+     * @param message
+     * @throws
+     * @author yinyg
+     * @date 2020/9/4
+     */
     public void publishWithConfirm(String exchange, String queueName, Object message) {
         Connection connection = null;
         Channel channel = null;
@@ -126,6 +144,15 @@ public class SendMqUtils {
         }
     }
 
+    /**
+     * @description 发送消息，异步确认
+     * @param exchange
+     * @param queueName
+     * @param message
+     * @throws
+     * @author yinyg
+     * @date 2020/9/4
+     */
     public void publishWithAsyncConfirm(String exchange, String queueName, Object message) {
         Connection connection = null;
         Channel channel = null;
@@ -188,6 +215,15 @@ public class SendMqUtils {
         }
     }
 
+    /**
+     * @description 发送消息，持久化
+     * @param exchange
+     * @param queueName
+     * @param message
+     * @throws
+     * @author yinyg
+     * @date 2020/9/4
+     */
     public void publishWithPersistent(String exchange, String queueName, Object message) {
         Connection connection = null;
         Channel channel = null;
@@ -221,6 +257,16 @@ public class SendMqUtils {
         }
     }
 
+    /**
+     * @description 延时队列实现一，死信队列
+     * @param exchange
+     * @param queueName
+     * @param message
+     * @param times
+     * @throws
+     * @author yinyg
+     * @date 2020/9/4
+     */
     public void publishMqTestWithDLX(String exchange, String queueName, Object message, long times) {
         try {
             RabbitTemplate template = commonRabbit.rabbitTemplate();
@@ -238,6 +284,16 @@ public class SendMqUtils {
         }
     }
 
+    /**
+     * @description 延时队列实现二，rabbitmq插件
+     * @param exchange
+     * @param queueName
+     * @param message
+     * @param times
+     * @throws
+     * @author yinyg
+     * @date 2020/9/4
+     */
     public void publishMqTestWithDelayedMessageQueue(String exchange, String queueName, Object message, long times) {
         try {
             RabbitTemplate template = commonRabbit.rabbitTemplate();
