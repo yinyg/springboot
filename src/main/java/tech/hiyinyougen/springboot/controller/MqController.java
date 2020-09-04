@@ -54,4 +54,36 @@ public class MqController {
         sendMqUtils.publishWithPersistent(RabbitMQConfig.EXCHANGE, RabbitMQConfig.QUEUE, userModel);
         return ResultModel.builder().success(Boolean.TRUE).build();
     }
+
+    /**
+     * @description 延时队列实现一
+     * @return tech.hiyinyougen.springboot.model.ResultModel
+     * @throws
+     * @author yinyg
+     * @date 2020/9/4
+     */
+    @GetMapping("/publishMqTestWithDLX")
+    public ResultModel publishMqTestWithDLX() {
+        UserModel userModel = UserModel.builder().username("yinyg").age(18).build();
+        UserModel userModel2 = UserModel.builder().username("zhangsan").age(20).build();
+        sendMqUtils.publishMqTestWithDLX(RabbitMQConfig.EXCHANGE, RabbitMQConfig.TTLQUEUE, userModel, 1000 * 60);
+        sendMqUtils.publishMqTestWithDLX(RabbitMQConfig.EXCHANGE, RabbitMQConfig.TTLQUEUE, userModel2, 1000 * 30);
+        return ResultModel.builder().success(Boolean.TRUE).build();
+    }
+
+    /**
+     * @description 延时队列实现一
+     * @return tech.hiyinyougen.springboot.model.ResultModel
+     * @throws
+     * @author yinyg
+     * @date 2020/9/4
+     */
+    @GetMapping("/publishMqTestWithDelayedMessageQueue")
+    public ResultModel publishMqTestWithDelayedMessageQueue() {
+        UserModel userModel = UserModel.builder().username("yinyg").age(18).build();
+        UserModel userModel2 = UserModel.builder().username("zhangsan").age(20).build();
+        sendMqUtils.publishMqTestWithDelayedMessageQueue(RabbitMQConfig.DELAYEDMESSAGEEXCHANGE, RabbitMQConfig.DELAYEDMESSAGEQUEUE, userModel, 1000 * 60);
+        sendMqUtils.publishMqTestWithDelayedMessageQueue(RabbitMQConfig.DELAYEDMESSAGEEXCHANGE, RabbitMQConfig.DELAYEDMESSAGEQUEUE, userModel2, 1000 * 30);
+        return ResultModel.builder().success(Boolean.TRUE).build();
+    }
 }

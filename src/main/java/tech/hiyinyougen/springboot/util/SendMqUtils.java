@@ -7,7 +7,10 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.ConfirmListener;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.AmqpException;
+import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageDeliveryMode;
+import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.connection.Connection;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -17,8 +20,7 @@ import org.springframework.stereotype.Component;
 import tech.hiyinyougen.springboot.config.RabbitMQConfig;
 
 import java.io.IOException;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -216,6 +218,40 @@ public class SendMqUtils {
             if (connection != null) {
                 connection.close();
             }
+        }
+    }
+
+    public void publishMqTestWithDLX(String exchange, String queueName, Object message, long times) {
+        try {
+            RabbitTemplate template = commonRabbit.rabbitTemplate();
+            MessagePostProcessor processor = new MessagePostProcessor(){
+                @Override
+                public Message postProcessMessage(Message message) throws AmqpException {
+                    message.getMessageProperties().setExpiration(times + "");
+                    return message;
+                }
+            };
+            template.convertAndSend(exchange, exchange + "." + queueName, JSONObject.toJSONString(message, SerializerFeature.WriteMapNullValue), processor);
+            log.info("publish mq success, queue={}, message={}, current={}, ttl={}", queueName, JSON.toJSONString(message), new Date(), times);
+        } catch (Exception ex) {
+            log.error("publish mq error, queue={}, message={}", queueName, JSON.toJSONString(message), ex.getMessage());
+        }
+    }
+
+    public void publishMqTestWithDelayedMessageQueue(String exchange, String queueName, Object message, long times) {
+        try {
+            RabbitTemplate template = commonRabbit.rabbitTemplate();
+            MessagePostProcessor processor = new MessagePostProcessor(){
+                @Override
+                public Message postProcessMessage(Message message) throws AmqpException {
+                    message.getMessageProperties().setHeader(MessageProperties.X_DELAY, times);
+                    return message;
+                }
+            };
+            template.convertAndSend(exchange, exchange + "." + queueName, JSONObject.toJSONString(message, SerializerFeature.WriteMapNullValue), processor);
+            log.info("publish mq success, queue={}, message={}, current={}, ttl={}", queueName, JSON.toJSONString(message), new Date(), times);
+        } catch (Exception ex) {
+            log.error("publish mq error, queue={}, message={}", queueName, JSON.toJSONString(message), ex.getMessage());
         }
     }
 }

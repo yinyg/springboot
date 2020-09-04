@@ -27,6 +27,10 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @Author yinyg
  * @CreateTime 2020/6/29 16:32
@@ -58,9 +62,29 @@ public class RabbitMQConfig {
     public static final String EXCHANGE = "exchange";
 
     /**
+     * 延时队列交换器
+     */
+    public static final String DELAYEDMESSAGEEXCHANGE = "delayedMessageExchange";
+
+    /**
      * 对列名称
      */
     public static final String QUEUE = "test";
+
+    /**
+     * TTL QUEUE
+     */
+    public static final String TTLQUEUE = "ttlQueue";
+
+    /**
+     * DLX repeat QUEUE
+     */
+    public static final String DLXQUEUE = "dlxQueue";
+
+    /**
+     * 延时队列
+     */
+    public static final String DELAYEDMESSAGEQUEUE = "delayedMessageQueue";
 
     private static final String LISTENERCONTAINERFACTORY = "listenerContainerFactory";
 
@@ -83,6 +107,20 @@ public class RabbitMQConfig {
             channel.exchangeDeclare(EXCHANGE, BuiltinExchangeType.DIRECT,true);
             channel.queueDeclare(QUEUE, true, false, false, null);
             channel.queueBind(QUEUE, EXCHANGE, EXCHANGE + "." + QUEUE);
+            // 死信队列配置
+            channel.queueDeclare(DLXQUEUE, true, false, false, null);
+            channel.queueBind(DLXQUEUE, EXCHANGE, EXCHANGE + "." + DLXQUEUE);
+            Map<String, Object> arguments = new HashMap<>();
+            arguments.put("x-dead-letter-exchange", EXCHANGE);
+            arguments.put("x-dead-letter-routing-key", EXCHANGE + "." + DLXQUEUE);
+            channel.queueDeclare(TTLQUEUE, true, false, false, arguments);
+            channel.queueBind(TTLQUEUE, EXCHANGE, EXCHANGE + "." + TTLQUEUE);
+            // 延时队列配置
+            Map<String, Object> args = new HashMap<String, Object>();
+            args.put("x-delayed-type", "direct");
+            channel.exchangeDeclare(DELAYEDMESSAGEEXCHANGE, "x-delayed-message",true, false, args);
+            channel.queueDeclare(DELAYEDMESSAGEQUEUE, true, false, false, null);
+            channel.queueBind(DELAYEDMESSAGEQUEUE, DELAYEDMESSAGEEXCHANGE, DELAYEDMESSAGEEXCHANGE + "." + DELAYEDMESSAGEQUEUE);
         } catch (Exception e){
             e.printStackTrace();
         } finally {
@@ -103,7 +141,7 @@ public class RabbitMQConfig {
         return factory;
     }
 
-    @RabbitListener(queues = {QUEUE},containerFactory = LISTENERCONTAINERFACTORY)
+    @RabbitListener(queues = {QUEUE, DLXQUEUE, DELAYEDMESSAGEQUEUE},containerFactory = LISTENERCONTAINERFACTORY)
     public void processMessage0(@Payload Message content,
                                 @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag,
                                 Channel channel) throws Exception {
@@ -118,7 +156,7 @@ public class RabbitMQConfig {
             }else{
                 throw new RuntimeException("ContentType不支持！（"+contentType+"）");
             }
-            System.out.println(JSON.toJSONString(jsonObject));
+            System.out.println(JSON.toJSONString(jsonObject) + "    " + new Date());
         } catch (Exception e){
             log.warn(e.getMessage());
         } finally {
