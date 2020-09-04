@@ -39,39 +39,39 @@ public class SendMqUtils {
     /**
      * @description 发送数据
      * @param: exchange
-     * @param: queueName
+     * @param: queue
      * @param: message
      * @throws
      * @author yinyg
      * @date 2020/7/13
      */
-    public void publish(String exchange, String queueName, Object message) {
+    public void publish(String exchange, String queue, Object message) {
         try {
             RabbitTemplate template = commonRabbit.rabbitTemplate();
-            template.convertAndSend(exchange, exchange + "." + queueName, JSONObject.toJSONString(message, SerializerFeature.WriteMapNullValue));
-            log.info("publish mq success, queue={}, message={}", queueName, JSON.toJSONString(message));
+            template.convertAndSend(exchange, exchange + "." + queue, JSONObject.toJSONString(message, SerializerFeature.WriteMapNullValue));
+            log.info("publish mq success, queue={}, message={}", queue, JSON.toJSONString(message));
         } catch (Exception ex) {
-            log.error("publish mq error, queue={}, message={}", queueName, JSON.toJSONString(message), ex.getMessage());
+            log.error("publish mq error, queue={}, message={}", queue, JSON.toJSONString(message), ex.getMessage());
         }
     }
 
     /**
      * @description 发送消息，事务
      * @param exchange
-     * @param queueName
+     * @param queue
      * @param message
      * @throws
      * @author yinyg
      * @date 2020/9/4
      */
-    public void publishWithTransaction(String exchange, String queueName, Object message) {
+    public void publishWithTransaction(String exchange, String queue, Object message) {
         Connection connection = null;
         Channel channel = null;
         try {
             connection = connectionFactory.createConnection();
             channel = connection.createChannel(true);
             channel.basicPublish(exchange,
-                    exchange + "." + queueName,
+                    exchange + "." + queue,
                     new AMQP.BasicProperties.Builder()
                             .contentType(MessageProperties.CONTENT_TYPE_TEXT_PLAIN)
 //                            .deliveryMode(MessageDeliveryMode.toInt(MessageDeliveryMode.PERSISTENT))
@@ -79,9 +79,9 @@ public class SendMqUtils {
                     JSON.toJSONBytes(message, SerializerFeature.WriteMapNullValue));
 //            int result = 1 / 0;
             channel.txCommit();
-            log.info("publish mq success, queue={}, message={}", queueName, JSON.toJSONString(message));
+            log.info("publish mq success, queue={}, message={}", queue, JSON.toJSONString(message));
         } catch (Exception ex) {
-            log.error("publish mq error, queue={}, message={}", queueName, JSON.toJSONString(message), ex.getMessage());
+            log.error("publish mq error, queue={}, message={}", queue, JSON.toJSONString(message), ex.getMessage());
             throw new RuntimeException(ex.getMessage());
         } finally {
             if (channel != null) {
@@ -102,13 +102,13 @@ public class SendMqUtils {
     /**
      * @description 发送消息，确认机制
      * @param exchange
-     * @param queueName
+     * @param queue
      * @param message
      * @throws
      * @author yinyg
      * @date 2020/9/4
      */
-    public void publishWithConfirm(String exchange, String queueName, Object message) {
+    public void publishWithConfirm(String exchange, String queue, Object message) {
         Connection connection = null;
         Channel channel = null;
         try {
@@ -116,17 +116,17 @@ public class SendMqUtils {
             channel = connection.createChannel(false);
             channel.confirmSelect();
             channel.basicPublish(exchange,
-                    exchange + "." + queueName,
+                    exchange + "." + queue,
                     new AMQP.BasicProperties.Builder().contentType(MessageProperties.CONTENT_TYPE_TEXT_PLAIN).build(),
                     JSON.toJSONBytes(message, SerializerFeature.WriteMapNullValue));
             if (channel.waitForConfirms()) {
-                log.info("publish mq success, queue={}, message={}", queueName, JSON.toJSONString(message));
+                log.info("publish mq success, queue={}, message={}", queue, JSON.toJSONString(message));
             } else {
-                log.info("publish mq error, queue={}", queueName, JSON.toJSONString(message));
+                log.info("publish mq error, queue={}", queue, JSON.toJSONString(message));
                 // do something else...
             }
         } catch (Exception ex) {
-            log.error("publish mq error, queue={}, message={}", queueName, JSON.toJSONString(message), ex.getMessage());
+            log.error("publish mq error, queue={}, message={}", queue, JSON.toJSONString(message), ex.getMessage());
             throw new RuntimeException(ex.getMessage());
         } finally {
             if (channel != null) {
@@ -147,13 +147,13 @@ public class SendMqUtils {
     /**
      * @description 发送消息，异步确认
      * @param exchange
-     * @param queueName
+     * @param queue
      * @param message
      * @throws
      * @author yinyg
      * @date 2020/9/4
      */
-    public void publishWithAsyncConfirm(String exchange, String queueName, Object message) {
+    public void publishWithAsyncConfirm(String exchange, String queue, Object message) {
         Connection connection = null;
         Channel channel = null;
         try {
@@ -189,15 +189,15 @@ public class SendMqUtils {
             while (msgCount <= batchCount) {
                 long nextSeqNo = channel.getNextPublishSeqNo();
                 channel.basicPublish(exchange,
-                        exchange + "." + queueName,
+                        exchange + "." + queue,
                         new AMQP.BasicProperties.Builder().contentType(MessageProperties.CONTENT_TYPE_TEXT_PLAIN).build(),
                         JSON.toJSONBytes(message, SerializerFeature.WriteMapNullValue));
-                log.info("publish mq success, queue={}, message={}", queueName, JSON.toJSONString(message));
+                log.info("publish mq success, queue={}, message={}", queue, JSON.toJSONString(message));
                 confirmSet.add(nextSeqNo);
                 ++msgCount;
             }
         } catch (Exception ex) {
-            log.error("publish mq error, queue={}, message={}", queueName, JSON.toJSONString(message), ex.getMessage());
+            log.error("publish mq error, queue={}, message={}", queue, JSON.toJSONString(message), ex.getMessage());
             throw new RuntimeException(ex.getMessage());
         } finally {
             if (channel != null) {
@@ -218,28 +218,28 @@ public class SendMqUtils {
     /**
      * @description 发送消息，持久化
      * @param exchange
-     * @param queueName
+     * @param queue
      * @param message
      * @throws
      * @author yinyg
      * @date 2020/9/4
      */
-    public void publishWithPersistent(String exchange, String queueName, Object message) {
+    public void publishWithPersistent(String exchange, String queue, Object message) {
         Connection connection = null;
         Channel channel = null;
         try {
             connection = connectionFactory.createConnection();
             channel = connection.createChannel(false);
             channel.basicPublish(exchange,
-                    exchange + "." + queueName,
+                    exchange + "." + queue,
                     new AMQP.BasicProperties.Builder()
                             .contentType(MessageProperties.CONTENT_TYPE_TEXT_PLAIN)
                             .deliveryMode(MessageDeliveryMode.toInt(MessageDeliveryMode.PERSISTENT))
                             .build(),
                     JSON.toJSONBytes(message, SerializerFeature.WriteMapNullValue));
-            log.info("publish mq success, queue={}, message={}", queueName, JSON.toJSONString(message));
+            log.info("publish mq success, queue={}, message={}", queue, JSON.toJSONString(message));
         } catch (Exception ex) {
-            log.error("publish mq error, queue={}, message={}", queueName, JSON.toJSONString(message), ex.getMessage());
+            log.error("publish mq error, queue={}, message={}", queue, JSON.toJSONString(message), ex.getMessage());
             throw new RuntimeException(ex.getMessage());
         } finally {
             if (channel != null) {
@@ -260,14 +260,14 @@ public class SendMqUtils {
     /**
      * @description 延时队列实现一，死信队列
      * @param exchange
-     * @param queueName
+     * @param queue
      * @param message
      * @param times
      * @throws
      * @author yinyg
      * @date 2020/9/4
      */
-    public void publishMqTestWithDLX(String exchange, String queueName, Object message, long times) {
+    public void publishMqTestWithDLX(String exchange, String queue, Object message, long times) {
         try {
             RabbitTemplate template = commonRabbit.rabbitTemplate();
             MessagePostProcessor processor = new MessagePostProcessor(){
@@ -277,24 +277,24 @@ public class SendMqUtils {
                     return message;
                 }
             };
-            template.convertAndSend(exchange, exchange + "." + queueName, JSONObject.toJSONString(message, SerializerFeature.WriteMapNullValue), processor);
-            log.info("publish mq success, queue={}, message={}, current={}, ttl={}", queueName, JSON.toJSONString(message), new Date(), times);
+            template.convertAndSend(exchange, exchange + "." + queue, JSONObject.toJSONString(message, SerializerFeature.WriteMapNullValue), processor);
+            log.info("publish mq success, queue={}, message={}, current={}, ttl={}", queue, JSON.toJSONString(message), new Date(), times);
         } catch (Exception ex) {
-            log.error("publish mq error, queue={}, message={}", queueName, JSON.toJSONString(message), ex.getMessage());
+            log.error("publish mq error, queue={}, message={}", queue, JSON.toJSONString(message), ex.getMessage());
         }
     }
 
     /**
      * @description 延时队列实现二，rabbitmq插件
      * @param exchange
-     * @param queueName
+     * @param queue
      * @param message
      * @param times
      * @throws
      * @author yinyg
      * @date 2020/9/4
      */
-    public void publishMqTestWithDelayedMessageQueue(String exchange, String queueName, Object message, long times) {
+    public void publishMqTestWithDelayedMessageQueue(String exchange, String queue, Object message, long times) {
         try {
             RabbitTemplate template = commonRabbit.rabbitTemplate();
             MessagePostProcessor processor = new MessagePostProcessor(){
@@ -304,10 +304,10 @@ public class SendMqUtils {
                     return message;
                 }
             };
-            template.convertAndSend(exchange, exchange + "." + queueName, JSONObject.toJSONString(message, SerializerFeature.WriteMapNullValue), processor);
-            log.info("publish mq success, queue={}, message={}, current={}, ttl={}", queueName, JSON.toJSONString(message), new Date(), times);
+            template.convertAndSend(exchange, exchange + "." + queue, JSONObject.toJSONString(message, SerializerFeature.WriteMapNullValue), processor);
+            log.info("publish mq success, queue={}, message={}, current={}, ttl={}", queue, JSON.toJSONString(message), new Date(), times);
         } catch (Exception ex) {
-            log.error("publish mq error, queue={}, message={}", queueName, JSON.toJSONString(message), ex.getMessage());
+            log.error("publish mq error, queue={}, message={}", queue, JSON.toJSONString(message), ex.getMessage());
         }
     }
 }
