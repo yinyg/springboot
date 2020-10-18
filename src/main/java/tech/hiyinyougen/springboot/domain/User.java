@@ -12,8 +12,7 @@ import javax.persistence.Id;
  * @date 2020/8/7
  * @description
  */
-@Getter
-@Setter
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
