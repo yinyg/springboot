@@ -8,10 +8,12 @@ import org.springframework.data.redis.core.*;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.CollectionUtils;
 import tech.hiyinyougen.springboot.domain.User;
+import tech.hiyinyougen.springboot.service.RedisService;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author yinyg
@@ -25,6 +27,8 @@ public class RedisTest {
     private StringRedisTemplate stringRedisTemplate;
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
+    @Autowired
+    private RedisService redisService;
 
     @Test
     public void testStringRedisTemplate() {
@@ -117,5 +121,13 @@ public class RedisTest {
         } finally {
             redisTemplate.delete("testRedisTemplateForZSet");
         }
+    }
+
+    @Test
+    public void testDistributedLock() {
+        long start = System.currentTimeMillis();
+        redisService.testDistributedLockAsyncMethod();
+        System.out.println(stringRedisTemplate.opsForValue().setIfAbsent("testDistributedLock", "2", 5L, TimeUnit.SECONDS));
+        System.out.println("costMilliSeconds: " + (System.currentTimeMillis() - start));
     }
 }
