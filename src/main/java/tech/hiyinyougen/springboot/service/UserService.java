@@ -29,7 +29,7 @@ public class UserService {
     @Lazy
     private EntityManager entityManager;
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean save(UserModel userModel) {
 //        try {
 //            Thread.sleep(1000L * 10);
