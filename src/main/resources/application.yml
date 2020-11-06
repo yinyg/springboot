@@ -6,35 +6,47 @@ spring:
     name: springboot
 
   datasource:
-    dynamic:
-      primary: queryDS
-      datasource:
-        queryDS:
-          driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:mysql://localhost:3306/springboot?characterEncoding=utf8&useSSL=false&serverTimezone=UTC
-          username: ${MYSQL_USER_NAME}
-          password: ${MYSQL_USER_PWD}
-          type: com.zaxxer.hikari.HikariDataSource
-          hikari:
-            min-idle: 5
-            max-pool-size: 10
-            idle-timeout: 30000
-            pool-name: QueryPool
-            max-lifetime: 1800000
-            connection-timeout: 30000
-        crdDS:
-          driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:mysql://localhost:3306/springboot?characterEncoding=utf8&useSSL=false&serverTimezone=UTC
-          username: ${MYSQL_USER_NAME2}
-          password: ${MYSQL_USER_PWD2}
-          type: com.zaxxer.hikari.HikariDataSource
-          hikari:
-            min-idle: 10
-            max-pool-size: 20
-            idle-timeout: 30000
-            pool-name: crdPool
-            max-lifetime: 1800000
-            connection-timeout: 30000
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/springboot?characterEncoding=utf8&useSSL=false&serverTimezone=UTC
+    username: ${MYSQL_USER_NAME}
+    password: ${MYSQL_USER_PWD}
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 10
+      idle-timeout: 30000
+      pool-name: HikariPool
+      max-lifetime: 1800000
+      connection-timeout: 30000
+#    dynamic:
+#      primary: queryDS
+#      datasource:
+#        queryDS:
+#          driver-class-name: com.mysql.cj.jdbc.Driver
+#          url: jdbc:mysql://localhost:3306/springboot?characterEncoding=utf8&useSSL=false&serverTimezone=UTC
+#          username: ${MYSQL_USER_NAME}
+#          password: ${MYSQL_USER_PWD}
+#          type: com.zaxxer.hikari.HikariDataSource
+#          hikari:
+#            min-idle: 5
+#            max-pool-size: 10
+#            idle-timeout: 30000
+#            pool-name: QueryPool
+#            max-lifetime: 1800000
+#            connection-timeout: 30000
+#        crdDS:
+#          driver-class-name: com.mysql.cj.jdbc.Driver
+#          url: jdbc:mysql://localhost:3306/springboot?characterEncoding=utf8&useSSL=false&serverTimezone=UTC
+#          username: ${MYSQL_USER_NAME2}
+#          password: ${MYSQL_USER_PWD2}
+#          type: com.zaxxer.hikari.HikariDataSource
+#          hikari:
+#            min-idle: 10
+#            max-pool-size: 20
+#            idle-timeout: 30000
+#            pool-name: crdPool
+#            max-lifetime: 1800000
+#            connection-timeout: 30000
 
   #  jackson:
   #    property-naming-strategy: SNAKE_CASE
